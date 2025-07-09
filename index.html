@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compliance Veritas - [Empresa X]</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://unpkg.com/tabulator-tables@5.5.0/dist/css/tabulator_modern.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <section id="login-view">
+        <div class="login-container">
+            <div class="login-header">
+                <h1 class="company-title-orange">Compliance Veritas</h1>
+                <p>Por favor, insira suas credenciais para continuar.</p>
+            </div>
+            <form id="login-form" novalidate>
+                <div class="form-group">
+                    <label for="username">Email</label>
+                    <input type="email" id="username" name="username" required placeholder="usuario@empresa.com">
+                    <span class="error-message" aria-live="polite"></span>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" name="password" required minlength="6" placeholder="******">
+                    <span class="error-message" aria-live="polite"></span>
+                </div>
+                <div class="form-links">
+                    <a href="#" class="form-link">Esqueci minha senha</a>
+                    <a href="#" class="form-link">Cadastre-se</a>
+                </div>
+                <button type="submit" class="btn-submit">Entrar</button>
+            </form>
+        </div>
+    </section>
+
+    <div id="app-container" class="hidden">
+        
+        <header id="app-header">
+            <div class="header-content">
+                <div class="logo-area">
+                    <span class="app-name">Compliance Veritas</span>
+                    <span class="company-name-placeholder">[Empresa X]</span>
+                </div>
+                <nav class="main-nav">
+                    <a href="#compliance-card-section" class="nav-link">O que é Compliance?</a>
+                    <a href="#risk-matrices-strategic-section" class="nav-link">Matriz Estratégica</a>
+                    <a href="#risk-matrices-operational-section" class="nav-link">Matriz Operacional</a>
+                    <a href="#bluebook-section" class="nav-link">Bluebook</a>
+                    <a href="#notes-section" class="nav-link">Anotações</a>
+                </nav>
+                <div class="user-actions">
+                    <button class="action-btn" id="notifications-btn" aria-label="Notificações">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge hidden">0</span>
+                    </button>
+                    <div class="user-menu">
+                        <button class="user-dropdown-btn">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                        <div class="user-dropdown-content">
+                            <a href="#">Configurações da Conta</a>
+                            <a href="#" id="logout-btn">Sair da Sessão</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+
+            <section id="compliance-card-section" class="content-section">
+                <div class="info-card-full">
+                    <h2 class="section-title">O que é, e por que adotar o Compliance em sua empresa?</h2>
+                    <div class="accordion-container">
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Perspectiva Legal</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="accordion-content">
+                                <p>Sob o prisma legal, compliance significa garantir a conformidade com o ordenamento jurídico. No Brasil, isso inclui, mas não se limita, à Lei Anticorrupção (Lei nº 12.846/2013), que estabelece a responsabilidade objetiva de empresas por atos de corrupção. Um programa de compliance eficaz é um fator atenuante em caso de sanções, demonstrando a boa-fé da organização.</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Perspectiva Ética</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="accordion-content">
+                                <p>Além das leis, o compliance abrange um compromisso com os valores e princípios éticos da organização. Trata-se de "fazer a coisa certa", mesmo quando ninguém está a ver. Isso envolve criar uma cultura de integridade, onde o "Tone at the Top" (o exemplo da alta gestão) é fundamental para inspirar comportamentos éticos em todos os níveis da empresa.</p>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>Perspectiva Estratégica</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="accordion-content">
+                                <p>Longe de ser apenas um centro de custo, o compliance é um investimento estratégico. Organizações com programas de compliance robustos são vistas como mais confiáveis por investidores, clientes e parceiros. Isso se traduz numa vantagem competitiva, melhora a reputação da marca e é um pilar essencial para a sustentabilidade do negócio a longo prazo.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="subsection-title">Porque o Compliance é Importante?</h3>
+                    <p>Num mercado cada vez mais consciente, a reputação é um ativo valioso. Empresas conhecidas pela sua integridade atraem mais clientes e parceiros de negócio. Um selo de "empresa limpa" ou a demonstração de um programa de compliance ativo pode ser o fator decisivo numa concorrência ou parceria estratégica. Os melhores profissionais procuram trabalhar em organizações que partilham os seus valores. Um ambiente de trabalho ético e transparente é um fator crucial para a satisfação e retenção de talentos, reduzindo custos com rotatividade e aumentando a produtividade.</p>
+                </div>
+            </section>
+
+            <section id="risk-matrices-strategic-section" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Matriz de Riscos Estratégicos</h2>
+                    <button id="download-strategic-pdf-btn" class="app-button"><i class="fas fa-file-pdf"></i> Baixar Relatório PDF</button>
+                </div>
+                <p>CRITÉRIOS EXEMPLIFICATIVOS PARA CLASSIFICAÇÃO DE UM RISCO COMO ESTRATÉGICO (NÃO SÃO CUMULATIVOS): 1 - Estar relacionado aos objetivos estratégicos da pasta / Prioridades do Gestor Máximo da Pasta; 2 - Pode ocasionar desgaste político; 3 - Afeta diretamente o resultado ou entrega de uma política pública; 4 - Ocasiona prejuízo financeiro relevante para a pasta; 5 - Se materializado existe uma interrupção nas operações/atividades de difícil recuperação ou de maneira irreversível; 6 - Afeta a imagem da Instituição.</p>
+                
+                <div class="tab-navigation">
+                    <button class="tab-link active" data-tab="strategic-1q25">MR Estratégicos 1Q25</button>
+                    <button class="tab-link" data-tab="strategic-2q25">MR Estratégicos 2Q25</button>
+                    <button class="tab-link" data-tab="strategic-3q25">MR Estratégicos 3Q25</button>
+                </div>
+
+                <div id="strategic-1q25" class="tab-content active">
+                    <div id="risk-table-strategic-1q25"></div>
+                </div>
+                <div id="strategic-2q25" class="tab-content">
+                    <div id="risk-table-strategic-2q25"></div>
+                </div>
+                <div id="strategic-3q25" class="tab-content">
+                    <div id="risk-table-strategic-3q25"></div>
+                </div>
+
+                <div class="table-actions">
+                    <button id="add-risk-strategic-btn" class="app-button add-button"><i class="fas fa-plus"></i> Adicionar Risco</button>
+                    <button id="add-sector-btn" class="app-button"><i class="fas fa-building"></i> Adicionar Setor</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="strategicRiskChart"></canvas>
+                </div>
+
+                 <div class="plans-container">
+                    <div class="plan-section">
+                        <div class="section-header">
+                            <h3 class="subsection-title">Planos de Ação</h3>
+                            <button id="add-action-plan-strategic-btn" class="app-button add-button"><i class="fas fa-plus"></i> Adicionar Plano</button>
+                        </div>
+                        <div id="action-plans-list-strategic"></div>
+                    </div>
+                    <div class="plan-section">
+                        <div class="section-header">
+                            <h3 class="subsection-title">Planos de Contingência <a href="#" class="info-link" data-info="contingency-info">(?)</a></h3>
+                            <button id="add-contingency-plan-strategic-btn" class="app-button add-button"><i class="fas fa-plus"></i> Adicionar Plano</button>
+                        </div>
+                        <div id="contingency-plans-list-strategic"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="risk-matrices-operational-section" class="content-section">
+                 <div class="section-header">
+                    <h2 class="section-title">Matriz de Riscos Operacionais</h2>
+                    <button id="download-operational-pdf-btn" class="app-button"><i class="fas fa-file-pdf"></i> Baixar Relatório PDF</button>
+                </div>
+                <div class="tab-navigation">
+                    <button class="tab-link active" data-tab="operational-1q25">MR Operacional 1Q25</button>
+                    <button class="tab-link" data-tab="operational-2q25">MR Operacional 2Q25</button>
+                    <button class="tab-link" data-tab="operational-3q25">MR Operacional 3Q25</button>
+                </div>
+                <div id="operational-1q25" class="tab-content active">
+                    <div id="risk-table-operational-1q25"></div>
+                </div>
+                <div class="table-actions">
+                    <button id="add-risk-operational-btn" class="app-button add-button"><i class="fas fa-plus"></i> Adicionar Risco</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="operationalRiskChart"></canvas>
+                </div>
+                <div class="plans-container">
+                    </div>
+            </section>
+
+            <section id="bluebook-section" class="content-section">
+                <h2 class="section-title">Bluebook - Documentação de Governança</h2>
+                <div class="bluebook-container">
+                    <div class="bluebook-module">
+                        <div class="section-header">
+                            <h3 class="subsection-title">Atas de Reunião</h3>
+                            <button id="add-meeting-minutes-btn" class="app-button add-button"><i class="fas fa-plus"></i> Nova Ata</button>
+                        </div>
+                        <div id="meeting-minutes-list">
+                            </div>
+                    </div>
+                    <div class="bluebook-module">
+                        <div class="section-header">
+                            <h3 class="subsection-title">Políticas Internas</h3>
+                            <button id="add-policy-btn" class="app-button add-button"><i class="fas fa-plus"></i> Nova Política</button>
+                        </div>
+                        <div id="policies-list">
+                             </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="notes-section" class="content-section">
+                <h2 class="section-title">Livro de Anotações</h2>
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="notes-search-input" placeholder="Buscar em todas as anotações...">
+                </div>
+                <div id="notes-aggregation-container">
+                    </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="add-sector-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn">×</button>
+            <h3>Adicionar Novo Setor</h3>
+            <form id="add-sector-form">
+                <div class="form-group">
+                    <label for="new-sector-name">Nome do Setor</label>
+                    <input type="text" id="new-sector-name" required>
+                </div>
+                <button type="submit" class="app-button">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="note-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn">×</button>
+            <h3>Observações do Risco</h3>
+            <form id="note-form">
+                <div class="form-group">
+                    <label for="note-text">Nova Observação</label>
+                    <textarea id="note-text" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="app-button">Adicionar Observação</button>
+            </form>
+            <hr>
+            <h4>Histórico de Observações</h4>
+            <div id="note-history-list"></div>
+        </div>
+    </div>
+
+    <div id="meeting-minutes-modal" class="modal-overlay hidden">
+        <div class="modal-content large">
+            <button class="modal-close-btn">×</button>
+            <h3>Nova Ata de Reunião</h3>
+            <form id="meeting-minutes-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="meeting-date">Data e Hora</label>
+                        <input type="datetime-local" id="meeting-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="meeting-attendees">Pessoas Presentes (nomes e cargos, separados por vírgula)</label>
+                        <input type="text" id="meeting-attendees" placeholder="Ex: João Silva (CEO), Maria Costa (CFO)" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="meeting-topics">Assuntos Tratados (resumo)</label>
+                    <textarea id="meeting-topics" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="meeting-decisions">Decisões Tomadas (resumo)</label>
+                    <textarea id="meeting-decisions" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="app-button"><i class="fas fa-cogs"></i> Gerar Texto da Ata</button>
+            </form>
+            <div id="generated-ata-preview-container" class="hidden">
+                 <h4>Pré-visualização da Ata</h4>
+                 <div id="generated-ata-preview" class="ata-preview"></div>
+                 <button id="save-ata-btn" class="app-button">Salvar Ata</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.0/dist/js/tabulator.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/riskMatrix.js"></script>
+    <script src="js/bluebook.js"></script>
+    <script src="js/notes.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+</html>
