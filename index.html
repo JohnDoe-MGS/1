@@ -1,3 +1,343 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Brasil - Compras de Ouro vs Dólar (últimos 30 anos)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1724;
+      --panel: #121a2b;
+      --muted: #8ea0c0;
+      --accent-gold: #f5c518;
+      --accent-dollar: #3ea776;
+      --accent-line: #ff7a59;
+      --text: #eaf0fb;
+      --border: #223049;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1220 0%, #0f1724 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+    header h1 {
+      margin: 0 0 6px;
+      font-size: 1.7rem;
+      letter-spacing: 0.2px;
+    }
+    header p.subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      border-radius: 10px;
+    }
+    .stat .label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat .value { font-size: 1.35rem; font-weight: 600; margin-top: 4px; }
+    .stat .hint  { color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .controls button {
+      background: #1a2338;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .controls button:hover { background: #233052; }
+    .controls button.active {
+      background: #2b3a5e;
+      border-color: #4a6098;
+    }
+    .chart-wrap {
+      position: relative;
+      height: 440px;
+    }
+    @media (max-width: 600px) { .chart-wrap { height: 360px; } }
+
+    details.meta {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+    details.meta summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text);
+    }
+    details.meta p, details.meta li { color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
+    details.meta a { color: #8fb6ff; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.88rem;
+    }
+    th, td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: right;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-weight: 500; }
+    tr.highlight td { background: rgba(245, 197, 24, 0.06); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Brasil: quanto foi gasto comprando ouro em vez de dólar</h1>
+      <p class="subtitle">Compras líquidas de ouro pelo Banco Central do Brasil — últimos 30 anos (1995–2024)</p>
+    </header>
+
+    <section class="stats" id="stats"></section>
+
+    <section class="panel">
+      <div class="controls">
+        <button data-view="annual" class="active">Gasto anual (US$)</button>
+        <button data-view="tonnes">Compras em toneladas</button>
+        <button data-view="stock">Estoque acumulado (ton)</button>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chart"></canvas>
+      </div>
+    </section>
+
+    <details class="meta">
+      <summary>Metodologia, fontes e tabela de dados</summary>
+      <p>
+        O Banco Central do Brasil não publica diretamente o "valor gasto comprando ouro em vez de dólar".
+        Os valores abaixo foram estimados a partir de: (1) variação anual das reservas oficiais em ouro
+        (dados do BCB, IMF IFS e World Gold Council); (2) preço médio anual do ouro em US$/onça-troy (LBMA).
+        A compra líquida em toneladas é multiplicada pelo preço médio daquele ano.
+      </p>
+      <ul>
+        <li>Em 17 dos últimos 30 anos (≈1995–2011, 2013–2020, 2022–2024) o BCB praticamente não alterou o estoque de ouro.</li>
+        <li>As compras se concentraram em <strong>2012</strong> (~33,5 t) e, principalmente, em <strong>2021</strong> (~62,3 t entre maio e julho).</li>
+        <li>Os valores são aproximados e arredondados. Pequenas variações mensais e vendas pontuais podem não aparecer.</li>
+      </ul>
+      <table id="dataTable"></table>
+    </details>
+  </div>
+
+  <script>
+    // Compras líquidas anuais estimadas (toneladas) e preço médio do ouro (US$/oz).
+    // Fontes: BCB (séries temporais de reservas), World Gold Council, LBMA.
+    // 1 tonelada = 32.150,7 onças-troy.
+    const OZ_PER_TON = 32150.7;
+
+    const data = [
+      // [ano, compra líquida em toneladas, preço médio US$/oz, estoque total ao fim do ano (t)]
+      [1995,  0.0,  384, 60.0],
+      [1996,  0.0,  388, 58.0],
+      [1997, -25.0, 331, 33.0],
+      [1998,  0.6,  294, 33.6],
+      [1999,  0.0,  279, 33.6],
+      [2000,  0.0,  279, 33.6],
+      [2001,  0.0,  271, 33.6],
+      [2002,  0.0,  310, 33.6],
+      [2003,  0.0,  363, 33.6],
+      [2004,  0.0,  409, 33.6],
+      [2005,  0.0,  445, 33.6],
+      [2006,  0.0,  603, 33.6],
+      [2007,  0.0,  695, 33.6],
+      [2008,  0.0,  872, 33.6],
+      [2009,  0.0,  972, 33.6],
+      [2010,  0.0, 1225, 33.6],
+      [2011,  0.0, 1572, 33.6],
+      [2012, 33.5, 1669, 67.1],
+      [2013,  0.0, 1411, 67.2],
+      [2014,  0.1, 1266, 67.3],
+      [2015,  0.1, 1160, 67.4],
+      [2016,  0.0, 1251, 67.4],
+      [2017,  0.0, 1257, 67.4],
+      [2018,  0.0, 1269, 67.4],
+      [2019,  0.0, 1393, 67.4],
+      [2020,  0.0, 1770, 67.4],
+      [2021, 62.3, 1799, 129.7],
+      [2022,  0.0, 1801, 129.7],
+      [2023,  0.0, 1941, 129.7],
+      [2024,  0.0, 2388, 129.7]
+    ];
+
+    // Gasto anual em US$ (apenas compras positivas; vendas marcadas como 0 para "gasto")
+    const labels = data.map(r => r[0]);
+    const tonnes = data.map(r => r[1]);
+    const spendUSD = data.map(r => Math.max(0, r[1]) * OZ_PER_TON * r[2]); // USD
+    const stock = data.map(r => r[3]);
+
+    const totalSpend = spendUSD.reduce((a, b) => a + b, 0);
+    const avgSpend = totalSpend / labels.length;
+    const purchaseYears = tonnes.filter(t => t > 0.05).length;
+    const totalTonsAdded = tonnes.reduce((a, b) => a + Math.max(0, b), 0);
+
+    const fmtUSD = v => {
+      if (v >= 1e9) return "US$ " + (v / 1e9).toFixed(2) + " bi";
+      if (v >= 1e6) return "US$ " + (v / 1e6).toFixed(1) + " mi";
+      if (v >= 1e3) return "US$ " + (v / 1e3).toFixed(1) + " mil";
+      return "US$ " + v.toFixed(0);
+    };
+    const fmtTon = v => v.toFixed(1) + " t";
+
+    // Stat cards
+    const stats = [
+      { label: "Gasto total estimado (30 anos)", value: fmtUSD(totalSpend), hint: "soma das compras líquidas em US$" },
+      { label: "Média anual", value: fmtUSD(avgSpend), hint: "distribuído por 30 anos" },
+      { label: "Anos com compras relevantes", value: purchaseYears + " de 30", hint: "quase tudo em 2012 e 2021" },
+      { label: "Ouro acrescentado ao estoque", value: fmtTon(totalTonsAdded), hint: "de ~33 t para ~130 t" }
+    ];
+    document.getElementById("stats").innerHTML = stats.map(s =>
+      `<div class="stat"><div class="label">${s.label}</div>
+        <div class="value">${s.value}</div>
+        <div class="hint">${s.hint}</div></div>`
+    ).join("");
+
+    // Data table
+    const rows = data.map((r, i) => {
+      const hl = r[1] > 0.05 ? ' class="highlight"' : "";
+      return `<tr${hl}><td>${r[0]}</td><td>${r[1].toFixed(1)}</td><td>${r[2]}</td><td>${fmtUSD(spendUSD[i])}</td><td>${r[3].toFixed(1)}</td></tr>`;
+    }).join("");
+    document.getElementById("dataTable").innerHTML =
+      `<thead><tr><th>Ano</th><th>Compra líquida (t)</th><th>Preço médio (US$/oz)</th><th>Gasto estimado</th><th>Estoque (t)</th></tr></thead>
+       <tbody>${rows}</tbody>`;
+
+    // Chart
+    const ctx = document.getElementById("chart").getContext("2d");
+    Chart.defaults.color = "#c8d2e8";
+    Chart.defaults.borderColor = "#223049";
+
+    const views = {
+      annual: {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Gasto anual em ouro (US$)",
+            data: spendUSD,
+            backgroundColor: "rgba(245, 197, 24, 0.85)",
+            borderColor: "#f5c518",
+            borderWidth: 1
+          }]
+        },
+        options: commonOptions("Gasto estimado em ouro (US$)", v => fmtUSD(v))
+      },
+      tonnes: {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Compras líquidas (toneladas)",
+            data: tonnes,
+            backgroundColor: tonnes.map(v => v < 0 ? "rgba(255,122,89,0.8)" : "rgba(62,167,118,0.85)"),
+            borderColor: tonnes.map(v => v < 0 ? "#ff7a59" : "#3ea776"),
+            borderWidth: 1
+          }]
+        },
+        options: commonOptions("Toneladas de ouro compradas (líquido)", v => v.toFixed(1) + " t")
+      },
+      stock: {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Estoque total de ouro (toneladas)",
+            data: stock,
+            fill: true,
+            backgroundColor: "rgba(245,197,24,0.12)",
+            borderColor: "#f5c518",
+            borderWidth: 2,
+            tension: 0.25,
+            pointRadius: 3,
+            pointBackgroundColor: "#f5c518"
+          }]
+        },
+        options: commonOptions("Reservas acumuladas em ouro (toneladas)", v => v.toFixed(0) + " t")
+      }
+    };
+
+    function commonOptions(yTitle, yFmt) {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: true, position: "top" },
+          tooltip: {
+            backgroundColor: "#0b1220",
+            borderColor: "#223049",
+            borderWidth: 1,
+            padding: 10,
+            callbacks: {
+              label: (ctx) => {
+                const i = ctx.dataIndex;
+                const lines = [];
+                lines.push(` ${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}`);
+                lines.push(` Preço médio do ouro: US$ ${data[i][2]}/oz`);
+                lines.push(` Compra líquida: ${data[i][1].toFixed(1)} t`);
+                lines.push(` Estoque no fim do ano: ${data[i][3].toFixed(1)} t`);
+                return lines;
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color: "rgba(255,255,255,0.04)" } },
+          y: {
+            title: { display: true, text: yTitle, color: "#8ea0c0" },
+            grid: { color: "rgba(255,255,255,0.06)" },
+            ticks: { callback: yFmt }
+          }
+        }
+      };
+    }
+
+    let chart = new Chart(ctx, views.annual);
+
+    document.querySelectorAll(".controls button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".controls button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const v = btn.dataset.view;
+        chart.destroy();
+        chart = new Chart(ctx, views[v]);
+      });
+    });
+  </script>
+</body>
 </html>
