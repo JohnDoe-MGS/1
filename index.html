@@ -24,59 +24,78 @@
       color: var(--text);
       min-height: 100vh;
     }
+    html { -webkit-text-size-adjust: 100%; }
     .container {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 32px 20px 80px;
+      padding: 24px 16px 64px;
     }
     header h1 {
       margin: 0 0 6px;
-      font-size: 1.7rem;
+      font-size: clamp(1.25rem, 4.5vw, 1.7rem);
+      line-height: 1.25;
       letter-spacing: 0.2px;
     }
     header p.subtitle {
-      margin: 0 0 24px;
+      margin: 0 0 20px;
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: clamp(0.82rem, 3.2vw, 0.95rem);
+      line-height: 1.4;
     }
     .stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    @media (min-width: 720px) {
+      .stats { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
     }
     .stat {
       background: var(--panel);
       border: 1px solid var(--border);
-      padding: 14px 16px;
+      padding: 12px 14px;
       border-radius: 10px;
+      min-width: 0;
     }
-    .stat .label { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; }
-    .stat .value { font-size: 1.35rem; font-weight: 600; margin-top: 4px; }
-    .stat .hint  { color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
+    .stat .label { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; line-height: 1.3; }
+    .stat .value { font-size: clamp(1rem, 4.2vw, 1.35rem); font-weight: 600; margin-top: 4px; overflow-wrap: anywhere; }
+    .stat .hint  { color: var(--muted); font-size: 0.72rem; margin-top: 2px; line-height: 1.35; }
 
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 18px;
-      margin-bottom: 20px;
+      padding: 14px;
+      margin-bottom: 16px;
     }
+    @media (min-width: 720px) { .panel { padding: 18px; margin-bottom: 20px; } }
+
     .controls {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 8px;
       margin-bottom: 12px;
+    }
+    @media (min-width: 520px) {
+      .controls { display: flex; flex-wrap: wrap; }
     }
     .controls button {
       background: #1a2338;
       color: var(--text);
       border: 1px solid var(--border);
-      padding: 8px 14px;
+      padding: 12px 14px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 0.88rem;
+      font-size: 0.92rem;
+      min-height: 44px;
+      width: 100%;
+      text-align: center;
       transition: background 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @media (min-width: 520px) {
+      .controls button { width: auto; padding: 10px 16px; font-size: 0.88rem; }
     }
     .controls button:hover { background: #233052; }
     .controls button.active {
@@ -85,34 +104,47 @@
     }
     .chart-wrap {
       position: relative;
-      height: 440px;
+      height: 58vh;
+      min-height: 300px;
+      max-height: 520px;
     }
-    @media (max-width: 600px) { .chart-wrap { height: 360px; } }
+    @media (min-width: 720px) { .chart-wrap { height: 440px; } }
 
     details.meta {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 12px 16px;
+      padding: 12px 14px;
     }
     details.meta summary {
       cursor: pointer;
       font-weight: 600;
       color: var(--text);
+      padding: 6px 0;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
     }
-    details.meta p, details.meta li { color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
+    details.meta p, details.meta li { color: var(--muted); font-size: 0.88rem; line-height: 1.55; }
     details.meta a { color: #8fb6ff; }
 
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 10px -4px 0;
+      padding: 0 4px;
+    }
     table {
       width: 100%;
+      min-width: 480px;
       border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 0.88rem;
+      font-size: 0.82rem;
     }
     th, td {
-      padding: 6px 10px;
+      padding: 7px 8px;
       border-bottom: 1px solid var(--border);
       text-align: right;
+      white-space: nowrap;
     }
     th:first-child, td:first-child { text-align: left; }
     th { color: var(--muted); font-weight: 500; }
@@ -152,7 +184,7 @@
         <li>As compras se concentraram em <strong>2012</strong> (~33,5 t) e, principalmente, em <strong>2021</strong> (~62,3 t entre maio e julho).</li>
         <li>Os valores são aproximados e arredondados. Pequenas variações mensais e vendas pontuais podem não aparecer.</li>
       </ul>
-      <table id="dataTable"></table>
+      <div class="table-wrap"><table id="dataTable"></table></div>
     </details>
   </div>
 
@@ -291,52 +323,98 @@
       }
     };
 
+    const isMobile = () => window.matchMedia("(max-width: 600px)").matches;
+
     function commonOptions(yTitle, yFmt) {
+      const mobile = isMobile();
       return {
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: { display: true, position: "top" },
+          legend: {
+            display: true,
+            position: "top",
+            labels: { boxWidth: 14, font: { size: mobile ? 11 : 13 } }
+          },
           tooltip: {
             backgroundColor: "#0b1220",
             borderColor: "#223049",
             borderWidth: 1,
-            padding: 10,
+            padding: mobile ? 8 : 10,
+            titleFont: { size: mobile ? 12 : 13 },
+            bodyFont: { size: mobile ? 11 : 12 },
+            boxPadding: 4,
             callbacks: {
               label: (ctx) => {
                 const i = ctx.dataIndex;
                 const lines = [];
                 lines.push(` ${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}`);
-                lines.push(` Preço médio do ouro: US$ ${data[i][2]}/oz`);
+                lines.push(` Preço ouro: US$ ${data[i][2]}/oz`);
                 lines.push(` Compra líquida: ${data[i][1].toFixed(1)} t`);
-                lines.push(` Estoque no fim do ano: ${data[i][3].toFixed(1)} t`);
+                lines.push(` Estoque: ${data[i][3].toFixed(1)} t`);
                 return lines;
               }
             }
           }
         },
         scales: {
-          x: { grid: { color: "rgba(255,255,255,0.04)" } },
+          x: {
+            grid: { color: "rgba(255,255,255,0.04)" },
+            ticks: {
+              autoSkip: true,
+              maxRotation: mobile ? 0 : 45,
+              minRotation: 0,
+              maxTicksLimit: mobile ? 8 : 15,
+              font: { size: mobile ? 10 : 12 }
+            }
+          },
           y: {
-            title: { display: true, text: yTitle, color: "#8ea0c0" },
+            title: {
+              display: !mobile,
+              text: yTitle,
+              color: "#8ea0c0"
+            },
             grid: { color: "rgba(255,255,255,0.06)" },
-            ticks: { callback: yFmt }
+            ticks: {
+              callback: yFmt,
+              font: { size: mobile ? 10 : 12 },
+              maxTicksLimit: mobile ? 6 : 10
+            }
           }
         }
       };
     }
 
-    let chart = new Chart(ctx, views.annual);
+    let currentView = "annual";
+    let chart = new Chart(ctx, views[currentView]);
+
+    function rebuildViews() {
+      // Recompute options (ticks/fonts) with current viewport size.
+      views.annual.options = commonOptions("Gasto estimado em ouro (US$)", v => fmtUSD(v));
+      views.tonnes.options = commonOptions("Toneladas de ouro compradas (líquido)", v => v.toFixed(1) + " t");
+      views.stock.options  = commonOptions("Reservas acumuladas em ouro (toneladas)", v => v.toFixed(0) + " t");
+    }
 
     document.querySelectorAll(".controls button").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".controls button").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
-        const v = btn.dataset.view;
+        currentView = btn.dataset.view;
+        rebuildViews();
         chart.destroy();
-        chart = new Chart(ctx, views[v]);
+        chart = new Chart(ctx, views[currentView]);
       });
+    });
+
+    let resizeTimer;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        rebuildViews();
+        chart.destroy();
+        chart = new Chart(ctx, views[currentView]);
+      }, 180);
     });
   </script>
 </body>
