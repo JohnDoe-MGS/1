@@ -2,420 +2,742 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Brasil - Compras de Ouro vs Dólar (últimos 30 anos)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1724" id="theme-color-meta" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Reservas Ouro BR" />
+  <meta name="description" content="Painel interativo das reservas em ouro do Banco Central do Brasil de 1995 a 2024." />
+  <title>Reservas em Ouro do Brasil • 1995-2024</title>
+  <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="%23f5c518"/><text x="50" y="64" font-size="42" text-anchor="middle" font-family="Arial,Helvetica" fill="%230b1220" font-weight="700">Au</text></svg>' />
+  <link rel="apple-touch-icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%230f1724"/><circle cx="50" cy="50" r="34" fill="%23f5c518"/><text x="50" y="62" font-size="32" text-anchor="middle" font-family="Arial,Helvetica" fill="%230b1220" font-weight="700">Au</text></svg>' />
+  <link rel="manifest" href='data:application/manifest+json;charset=utf-8,{"name":"Reservas em Ouro do Brasil","short_name":"Ouro BR","description":"Painel interativo das reservas em ouro do Banco Central do Brasil","start_url":"./","display":"standalone","orientation":"any","background_color":"%230b1220","theme_color":"%230f1724","icons":[{"src":"data:image/svg+xml;utf8,<svg xmlns=%5C"http://www.w3.org/2000/svg%5C" viewBox=%5C"0 0 100 100%5C"><rect width=%5C"100%5C" height=%5C"100%5C" rx=%5C"22%5C" fill=%5C"%230f1724%5C"/><circle cx=%5C"50%5C" cy=%5C"50%5C" r=%5C"34%5C" fill=%5C"%23f5c518%5C"/><text x=%5C"50%5C" y=%5C"62%5C" font-size=%5C"32%5C" text-anchor=%5C"middle%5C" font-family=%5C"Arial,Helvetica%5C" fill=%5C"%230b1220%5C" font-weight=%5C"700%5C">Au</text></svg>","sizes":"any","type":"image/svg+xml","purpose":"any"}]}' />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #0f1724;
+      --bg-1: #0b1220;
+      --bg-2: #0f1724;
       --panel: #121a2b;
+      --panel-2: #1a2338;
       --muted: #8ea0c0;
-      --accent-gold: #f5c518;
-      --accent-dollar: #3ea776;
-      --accent-line: #ff7a59;
       --text: #eaf0fb;
       --border: #223049;
+      --accent-gold: #f5c518;
+      --accent-green: #3ea776;
+      --accent-red: #ff7a59;
+      --accent-blue: #5b9dff;
+    }
+    [data-theme="light"] {
+      --bg-1: #f4f6fb;
+      --bg-2: #ffffff;
+      --panel: #ffffff;
+      --panel-2: #f0f3fa;
+      --muted: #5b6b8a;
+      --text: #15233f;
+      --border: #d9e0ee;
+      --accent-gold: #c8a116;
+      --accent-green: #2f8f60;
+      --accent-red: #d6552f;
+      --accent-blue: #2c6dd2;
     }
     * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: linear-gradient(180deg, #0b1220 0%, #0f1724 100%);
+      background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
       color: var(--text);
       min-height: 100vh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
-    html { -webkit-text-size-adjust: 100%; }
-    .container {
-      max-width: 1100px;
+    .app {
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 24px 16px 64px;
+      padding: 16px 14px 64px;
     }
-    header h1 {
-      margin: 0 0 6px;
-      font-size: clamp(1.25rem, 4.5vw, 1.7rem);
-      line-height: 1.25;
-      letter-spacing: 0.2px;
+
+    .appbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      position: sticky;
+      top: 8px;
+      z-index: 5;
+      backdrop-filter: saturate(150%) blur(6px);
     }
-    header p.subtitle {
-      margin: 0 0 20px;
-      color: var(--muted);
-      font-size: clamp(0.82rem, 3.2vw, 0.95rem);
-      line-height: 1.4;
+    .appbar .title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--accent-gold);
+      color: #0b1220;
+      font-weight: 700;
+      font-size: 0.95rem;
+      flex: 0 0 36px;
     }
+    .appbar h1 { margin: 0; font-size: clamp(1rem, 4vw, 1.15rem); line-height: 1.15; }
+    .appbar .sub { margin: 1px 0 0; color: var(--muted); font-size: 0.78rem; line-height: 1.2; }
+    .icon-btn {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.05rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn:hover { background: var(--border); }
+
     .stats {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
-    @media (min-width: 720px) {
-      .stats { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-    }
+    @media (min-width: 760px) { .stats { grid-template-columns: repeat(5, 1fr); gap: 12px; } }
     .stat {
       background: var(--panel);
       border: 1px solid var(--border);
       padding: 12px 14px;
-      border-radius: 10px;
+      border-radius: 12px;
       min-width: 0;
     }
-    .stat .label { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px; line-height: 1.3; }
-    .stat .value { font-size: clamp(1rem, 4.2vw, 1.35rem); font-weight: 600; margin-top: 4px; overflow-wrap: anywhere; }
+    .stat .label { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.7px; line-height: 1.3; }
+    .stat .value { font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 700; margin-top: 4px; overflow-wrap: anywhere; }
     .stat .hint  { color: var(--muted); font-size: 0.72rem; margin-top: 2px; line-height: 1.35; }
 
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 14px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
-    @media (min-width: 720px) { .panel { padding: 18px; margin-bottom: 20px; } }
+    .panel h3 { margin: 0 0 4px; font-size: 0.98rem; }
+    .panel .hint { margin: 0 0 10px; color: var(--muted); font-size: 0.78rem; }
 
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
+    .filter .range { display: grid; gap: 8px; }
+    .filter .range-row { display: flex; align-items: center; gap: 10px; }
+    .filter .range-row label { color: var(--muted); font-size: 0.78rem; width: 36px; }
+    .filter input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent-gold);
+      height: 28px;
     }
-    @media (min-width: 520px) {
-      .controls { display: flex; flex-wrap: wrap; }
+    .range-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
     }
-    .controls button {
-      background: #1a2338;
+    .range-display .lab { font-weight: 600; }
+    .range-display button {
+      background: var(--panel-2);
       color: var(--text);
       border: 1px solid var(--border);
-      padding: 12px 14px;
+      padding: 8px 12px;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 0.92rem;
-      min-height: 44px;
-      width: 100%;
-      text-align: center;
-      transition: background 0.15s, border-color 0.15s;
-      -webkit-tap-highlight-color: transparent;
+      font-size: 0.85rem;
+      min-height: 36px;
     }
-    @media (min-width: 520px) {
-      .controls button { width: auto; padding: 10px 16px; font-size: 0.88rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
     }
-    .controls button:hover { background: #233052; }
-    .controls button.active {
-      background: #2b3a5e;
-      border-color: #4a6098;
-    }
+    @media (min-width: 760px) { .grid { grid-template-columns: 1fr 1fr; } }
+
     .chart-wrap {
       position: relative;
-      height: 58vh;
-      min-height: 300px;
-      max-height: 520px;
+      height: 280px;
     }
-    @media (min-width: 720px) { .chart-wrap { height: 440px; } }
+    @media (min-width: 760px) { .chart-wrap { height: 300px; } }
 
-    details.meta {
-      background: var(--panel);
+    .events { display: grid; gap: 10px; }
+    .event {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--panel-2);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 12px 14px;
+      align-items: start;
     }
-    details.meta summary {
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--text);
-      padding: 6px 0;
-      min-height: 36px;
-      display: flex;
-      align-items: center;
+    .event-year {
+      display: inline-block;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--accent-gold);
+      color: #0b1220;
+      white-space: nowrap;
     }
-    details.meta p, details.meta li { color: var(--muted); font-size: 0.88rem; line-height: 1.55; }
-    details.meta a { color: #8fb6ff; }
+    .event strong { display: block; margin-bottom: 2px; }
+    .event p { margin: 0; color: var(--muted); font-size: 0.85rem; line-height: 1.45; }
 
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+    .table-header h3 { margin: 0; }
+    .table-header button {
+      background: var(--accent-gold);
+      color: #0b1220;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      min-height: 36px;
+    }
     .table-wrap {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      margin: 10px -4px 0;
+      margin: 0 -4px;
       padding: 0 4px;
     }
     table {
       width: 100%;
-      min-width: 480px;
+      min-width: 520px;
       border-collapse: collapse;
-      font-size: 0.82rem;
+      font-size: 0.84rem;
     }
     th, td {
-      padding: 7px 8px;
+      padding: 7px 10px;
       border-bottom: 1px solid var(--border);
       text-align: right;
       white-space: nowrap;
     }
     th:first-child, td:first-child { text-align: left; }
     th { color: var(--muted); font-weight: 500; }
-    tr.highlight td { background: rgba(245, 197, 24, 0.06); }
+    tr.highlight td { background: rgba(245, 197, 24, 0.10); }
+    tr.dim td { color: var(--muted); }
+
+    details.meta summary {
+      cursor: pointer;
+      font-weight: 600;
+      padding: 4px 0;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    details.meta summary::after {
+      content: "▾";
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+    details.meta[open] summary::after { transform: rotate(180deg); }
+    details.meta ul { margin: 8px 0 0; padding-left: 20px; }
+    details.meta li { color: var(--muted); font-size: 0.86rem; line-height: 1.55; margin: 3px 0; }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-top: 20px;
+    }
+
+    @media print {
+      .appbar .icon-btn, .filter, .table-header button, footer { display: none !important; }
+      .appbar { position: static; }
+      .grid { grid-template-columns: 1fr 1fr; }
+      body { background: #fff; color: #000; }
+      .panel { break-inside: avoid; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Brasil: quanto foi gasto comprando ouro em vez de dólar</h1>
-      <p class="subtitle">Compras líquidas de ouro pelo Banco Central do Brasil — últimos 30 anos (1995–2024)</p>
+  <div class="app">
+    <header class="appbar">
+      <div class="title">
+        <span class="logo">Au</span>
+        <div>
+          <h1>Reservas em Ouro do Brasil</h1>
+          <p class="sub">1995 – 2024 • Banco Central do Brasil</p>
+        </div>
+      </div>
+      <button class="icon-btn" id="themeToggle" aria-label="Alternar tema" title="Alternar tema">🌓</button>
     </header>
 
     <section class="stats" id="stats"></section>
 
-    <section class="panel">
-      <div class="controls">
-        <button data-view="annual" class="active">Gasto anual (US$)</button>
-        <button data-view="tonnes">Compras em toneladas</button>
-        <button data-view="stock">Estoque acumulado (ton)</button>
-      </div>
-      <div class="chart-wrap">
-        <canvas id="chart"></canvas>
+    <section class="panel filter">
+      <h3>Filtrar período</h3>
+      <p class="hint">Aplica em todos os gráficos abaixo.</p>
+      <div class="range">
+        <div class="range-row"><label>De</label><input type="range" id="minYear" min="1995" max="2024" value="1995" step="1" /></div>
+        <div class="range-row"><label>Até</label><input type="range" id="maxYear" min="1995" max="2024" value="2024" step="1" /></div>
+        <div class="range-display">
+          <span class="lab"><span id="rangeLabel">1995 — 2024</span></span>
+          <button id="resetRange">Resetar</button>
+        </div>
       </div>
     </section>
 
-    <details class="meta">
-      <summary>Metodologia, fontes e tabela de dados</summary>
-      <p>
-        O Banco Central do Brasil não publica diretamente o "valor gasto comprando ouro em vez de dólar".
-        Os valores abaixo foram estimados a partir de: (1) variação anual das reservas oficiais em ouro
-        (dados do BCB, IMF IFS e World Gold Council); (2) preço médio anual do ouro em US$/onça-troy (LBMA).
-        A compra líquida em toneladas é multiplicada pelo preço médio daquele ano.
-      </p>
-      <ul>
-        <li>Em 17 dos últimos 30 anos (≈1995–2011, 2013–2020, 2022–2024) o BCB praticamente não alterou o estoque de ouro.</li>
-        <li>As compras se concentraram em <strong>2012</strong> (~33,5 t) e, principalmente, em <strong>2021</strong> (~62,3 t entre maio e julho).</li>
-        <li>Os valores são aproximados e arredondados. Pequenas variações mensais e vendas pontuais podem não aparecer.</li>
-      </ul>
+    <section class="grid" id="charts">
+      <div class="panel">
+        <h3>Gasto anual em ouro (US$)</h3>
+        <p class="hint">Compras líquidas × preço médio do ano.</p>
+        <div class="chart-wrap"><canvas id="cSpend"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Compras em toneladas</h3>
+        <p class="hint">Variação líquida do estoque (verde = compra, vermelho = venda).</p>
+        <div class="chart-wrap"><canvas id="cTonnes"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Estoque acumulado (toneladas)</h3>
+        <p class="hint">Reservas oficiais ao fim de cada ano.</p>
+        <div class="chart-wrap"><canvas id="cStock"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Valor de mercado do estoque (US$ bi)</h3>
+        <p class="hint">Estoque × preço médio anual.</p>
+        <div class="chart-wrap"><canvas id="cMtm"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Preço médio do ouro (US$/oz)</h3>
+        <p class="hint">Média anual LBMA.</p>
+        <div class="chart-wrap"><canvas id="cPrice"></canvas></div>
+      </div>
+      <div class="panel">
+        <h3>Compras vs preço do ouro</h3>
+        <p class="hint">Barra: toneladas compradas • Linha: preço médio.</p>
+        <div class="chart-wrap"><canvas id="cMix"></canvas></div>
+      </div>
+    </section>
+
+    <section class="panel events">
+      <h3 style="margin-bottom:10px">Eventos-chave</h3>
+      <div class="event">
+        <span class="event-year">1997</span>
+        <div>
+          <strong>Venda de aproximadamente 25 t</strong>
+          <p>Estoque cai de cerca de 58 t para 33,6 t. O Brasil reduz fortemente sua posição em ouro, herdada do ciclo dos anos 80.</p>
+        </div>
+      </div>
+      <div class="event">
+        <span class="event-year">Set–Nov 2012</span>
+        <div>
+          <strong>Primeira grande compra moderna: ~33,5 t</strong>
+          <p>BCB praticamente dobra o estoque (33 t → 67 t). Gasto estimado: <strong>≈ US$ 1,8 bi</strong> ao preço médio de US$ 1.669/oz.</p>
+        </div>
+      </div>
+      <div class="event">
+        <span class="event-year">Mai–Jul 2021</span>
+        <div>
+          <strong>Maior expansão da história recente: ~62,3 t</strong>
+          <p>Em três meses o estoque salta de 67 t para 130 t durante a pandemia. Gasto estimado: <strong>≈ US$ 3,6 bi</strong>.</p>
+        </div>
+      </div>
+      <div class="event">
+        <span class="event-year">2022–2024</span>
+        <div>
+          <strong>Estabilidade no estoque</strong>
+          <p>Sem novas compras relevantes. O valor em US$ sobe pelo efeito do preço (US$ 1.800 → 2.388/oz).</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="table-header">
+        <h3>Dados completos</h3>
+        <button id="exportCsv">Exportar CSV</button>
+      </div>
       <div class="table-wrap"><table id="dataTable"></table></div>
+    </section>
+
+    <details class="panel meta">
+      <summary>Metodologia e fontes</summary>
+      <ul>
+        <li><strong>Variação do estoque oficial:</strong> Banco Central do Brasil (séries temporais), IMF IFS, World Gold Council.</li>
+        <li><strong>Preço médio anual do ouro:</strong> LBMA (London Bullion Market Association), médias diárias.</li>
+        <li><strong>Conversão:</strong> 1 tonelada = 32.150,7 onças-troy.</li>
+        <li><strong>Gasto anual:</strong> máx(0, compras líquidas em toneladas) × onças/t × preço médio do ano. Vendas (negativas) não somam ao gasto.</li>
+        <li><strong>Valor de mercado:</strong> estoque total × onças/t × preço médio do ano.</li>
+        <li>Os números são <em>aproximados</em>. Pequenas operações intra-ano e ajustes de avaliação podem não aparecer.</li>
+        <li>O BCB não publica "gasto comprando ouro em vez de dólar" diretamente — esta métrica é uma estimativa baseada em variação de reservas e preço médio.</li>
+      </ul>
     </details>
+
+    <footer>
+      <p>App offline-friendly • Dados compilados de fontes públicas (BCB, IMF, WGC, LBMA)</p>
+    </footer>
   </div>
 
   <script>
-    // Compras líquidas anuais estimadas (toneladas) e preço médio do ouro (US$/oz).
-    // Fontes: BCB (séries temporais de reservas), World Gold Council, LBMA.
-    // 1 tonelada = 32.150,7 onças-troy.
+    "use strict";
+
     const OZ_PER_TON = 32150.7;
 
-    const data = [
-      // [ano, compra líquida em toneladas, preço médio US$/oz, estoque total ao fim do ano (t)]
-      [1995,  0.0,  384, 60.0],
-      [1996,  0.0,  388, 58.0],
-      [1997, -25.0, 331, 33.0],
-      [1998,  0.6,  294, 33.6],
-      [1999,  0.0,  279, 33.6],
-      [2000,  0.0,  279, 33.6],
-      [2001,  0.0,  271, 33.6],
-      [2002,  0.0,  310, 33.6],
-      [2003,  0.0,  363, 33.6],
-      [2004,  0.0,  409, 33.6],
-      [2005,  0.0,  445, 33.6],
-      [2006,  0.0,  603, 33.6],
-      [2007,  0.0,  695, 33.6],
-      [2008,  0.0,  872, 33.6],
-      [2009,  0.0,  972, 33.6],
-      [2010,  0.0, 1225, 33.6],
-      [2011,  0.0, 1572, 33.6],
-      [2012, 33.5, 1669, 67.1],
-      [2013,  0.0, 1411, 67.2],
-      [2014,  0.1, 1266, 67.3],
-      [2015,  0.1, 1160, 67.4],
-      [2016,  0.0, 1251, 67.4],
-      [2017,  0.0, 1257, 67.4],
-      [2018,  0.0, 1269, 67.4],
-      [2019,  0.0, 1393, 67.4],
-      [2020,  0.0, 1770, 67.4],
-      [2021, 62.3, 1799, 129.7],
-      [2022,  0.0, 1801, 129.7],
-      [2023,  0.0, 1941, 129.7],
-      [2024,  0.0, 2388, 129.7]
+    // [year, net_purchase_tonnes, avg_price_usd_per_oz, stock_eoy_tonnes]
+    const RAW = [
+      [1995,   0.0,  384,  58.0],
+      [1996,   0.0,  388,  58.0],
+      [1997, -25.0,  331,  33.0],
+      [1998,   0.6,  294,  33.6],
+      [1999,   0.0,  279,  33.6],
+      [2000,   0.0,  279,  33.6],
+      [2001,   0.0,  271,  33.6],
+      [2002,   0.0,  310,  33.6],
+      [2003,   0.0,  363,  33.6],
+      [2004,   0.0,  409,  33.6],
+      [2005,   0.0,  445,  33.6],
+      [2006,   0.0,  603,  33.6],
+      [2007,   0.0,  695,  33.6],
+      [2008,   0.0,  872,  33.6],
+      [2009,   0.0,  972,  33.6],
+      [2010,   0.0, 1225,  33.6],
+      [2011,   0.0, 1572,  33.6],
+      [2012,  33.5, 1669,  67.1],
+      [2013,   0.0, 1411,  67.2],
+      [2014,   0.1, 1266,  67.3],
+      [2015,   0.1, 1160,  67.4],
+      [2016,   0.0, 1251,  67.4],
+      [2017,   0.0, 1257,  67.4],
+      [2018,   0.0, 1269,  67.4],
+      [2019,   0.0, 1393,  67.4],
+      [2020,   0.0, 1770,  67.4],
+      [2021,  62.3, 1799, 129.7],
+      [2022,   0.0, 1801, 129.7],
+      [2023,   0.0, 1941, 129.7],
+      [2024,   0.0, 2388, 129.7]
     ];
 
-    // Gasto anual em US$ (apenas compras positivas; vendas marcadas como 0 para "gasto")
-    const labels = data.map(r => r[0]);
-    const tonnes = data.map(r => r[1]);
-    const spendUSD = data.map(r => Math.max(0, r[1]) * OZ_PER_TON * r[2]); // USD
-    const stock = data.map(r => r[3]);
-
-    const totalSpend = spendUSD.reduce((a, b) => a + b, 0);
-    const avgSpend = totalSpend / labels.length;
-    const purchaseYears = tonnes.filter(t => t > 0.05).length;
-    const totalTonsAdded = tonnes.reduce((a, b) => a + Math.max(0, b), 0);
+    const ALL = RAW.map(r => ({
+      year: r[0],
+      tonnes: r[1],
+      price: r[2],
+      stock: r[3],
+      spend: Math.max(0, r[1]) * OZ_PER_TON * r[2],
+      mtm: r[3] * OZ_PER_TON * r[2]
+    }));
 
     const fmtUSD = v => {
-      if (v >= 1e9) return "US$ " + (v / 1e9).toFixed(2) + " bi";
-      if (v >= 1e6) return "US$ " + (v / 1e6).toFixed(1) + " mi";
-      if (v >= 1e3) return "US$ " + (v / 1e3).toFixed(1) + " mil";
-      return "US$ " + v.toFixed(0);
+      const a = Math.abs(v);
+      const s = v < 0 ? "-" : "";
+      if (a >= 1e9) return s + "US$ " + (a / 1e9).toFixed(2) + " bi";
+      if (a >= 1e6) return s + "US$ " + (a / 1e6).toFixed(1) + " mi";
+      if (a >= 1e3) return s + "US$ " + (a / 1e3).toFixed(1) + " mil";
+      return s + "US$ " + a.toFixed(0);
     };
+    const fmtUSDbi = v => "US$ " + (v / 1e9).toFixed(2) + " bi";
     const fmtTon = v => v.toFixed(1) + " t";
 
-    // Stat cards
-    const stats = [
-      { label: "Gasto total estimado (30 anos)", value: fmtUSD(totalSpend), hint: "soma das compras líquidas em US$" },
-      { label: "Média anual", value: fmtUSD(avgSpend), hint: "distribuído por 30 anos" },
-      { label: "Anos com compras relevantes", value: purchaseYears + " de 30", hint: "quase tudo em 2012 e 2021" },
-      { label: "Ouro acrescentado ao estoque", value: fmtTon(totalTonsAdded), hint: "de ~33 t para ~130 t" }
-    ];
-    document.getElementById("stats").innerHTML = stats.map(s =>
-      `<div class="stat"><div class="label">${s.label}</div>
-        <div class="value">${s.value}</div>
-        <div class="hint">${s.hint}</div></div>`
-    ).join("");
+    // ----- KPI Stats -----
+    function buildStats(rows) {
+      const totalSpend = rows.reduce((a, r) => a + r.spend, 0);
+      const years = rows.length || 1;
+      const avgSpend = totalSpend / years;
+      const purchaseYears = rows.filter(r => r.tonnes > 0.05).length;
+      const tonsAdded = rows.reduce((a, r) => a + Math.max(0, r.tonnes), 0);
+      const last = rows[rows.length - 1] || { mtm: 0, stock: 0 };
 
-    // Data table
-    const rows = data.map((r, i) => {
-      const hl = r[1] > 0.05 ? ' class="highlight"' : "";
-      return `<tr${hl}><td>${r[0]}</td><td>${r[1].toFixed(1)}</td><td>${r[2]}</td><td>${fmtUSD(spendUSD[i])}</td><td>${r[3].toFixed(1)}</td></tr>`;
-    }).join("");
-    document.getElementById("dataTable").innerHTML =
-      `<thead><tr><th>Ano</th><th>Compra líquida (t)</th><th>Preço médio (US$/oz)</th><th>Gasto estimado</th><th>Estoque (t)</th></tr></thead>
-       <tbody>${rows}</tbody>`;
+      const items = [
+        { label: "Gasto total", value: fmtUSD(totalSpend), hint: "no período selecionado" },
+        { label: "Média anual", value: fmtUSD(avgSpend), hint: years + " anos" },
+        { label: "Ouro comprado", value: fmtTon(tonsAdded), hint: purchaseYears + " anos com compras" },
+        { label: "Estoque (fim)", value: fmtTon(last.stock), hint: "ano " + last.year },
+        { label: "Valor de mercado", value: fmtUSDbi(last.mtm), hint: "ano " + last.year }
+      ];
+      document.getElementById("stats").innerHTML = items.map(s =>
+        `<div class="stat"><div class="label">${s.label}</div><div class="value">${s.value}</div><div class="hint">${s.hint}</div></div>`
+      ).join("");
+    }
 
-    // Chart
-    const ctx = document.getElementById("chart").getContext("2d");
-    Chart.defaults.color = "#c8d2e8";
-    Chart.defaults.borderColor = "#223049";
+    // ----- Data table -----
+    function buildTable(rows) {
+      const head = `<thead><tr>
+        <th>Ano</th><th>Compra (t)</th><th>Preço (US$/oz)</th><th>Gasto (US$)</th><th>Estoque (t)</th><th>Valor mtm</th>
+      </tr></thead>`;
+      const body = rows.map(r => {
+        const cls = r.tonnes > 0.05 ? " class=\"highlight\"" : (r.tonnes < -0.05 ? " class=\"dim\"" : "");
+        return `<tr${cls}><td>${r.year}</td><td>${r.tonnes.toFixed(1)}</td><td>${r.price}</td><td>${fmtUSD(r.spend)}</td><td>${r.stock.toFixed(1)}</td><td>${fmtUSDbi(r.mtm)}</td></tr>`;
+      }).join("");
+      document.getElementById("dataTable").innerHTML = head + "<tbody>" + body + "</tbody>";
+    }
 
-    const views = {
-      annual: {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            label: "Gasto anual em ouro (US$)",
-            data: spendUSD,
-            backgroundColor: "rgba(245, 197, 24, 0.85)",
-            borderColor: "#f5c518",
-            borderWidth: 1
-          }]
-        },
-        options: commonOptions("Gasto estimado em ouro (US$)", v => fmtUSD(v))
-      },
-      tonnes: {
-        type: "bar",
-        data: {
-          labels,
-          datasets: [{
-            label: "Compras líquidas (toneladas)",
-            data: tonnes,
-            backgroundColor: tonnes.map(v => v < 0 ? "rgba(255,122,89,0.8)" : "rgba(62,167,118,0.85)"),
-            borderColor: tonnes.map(v => v < 0 ? "#ff7a59" : "#3ea776"),
-            borderWidth: 1
-          }]
-        },
-        options: commonOptions("Toneladas de ouro compradas (líquido)", v => v.toFixed(1) + " t")
-      },
-      stock: {
-        type: "line",
-        data: {
-          labels,
-          datasets: [{
-            label: "Estoque total de ouro (toneladas)",
-            data: stock,
-            fill: true,
-            backgroundColor: "rgba(245,197,24,0.12)",
-            borderColor: "#f5c518",
-            borderWidth: 2,
-            tension: 0.25,
-            pointRadius: 3,
-            pointBackgroundColor: "#f5c518"
-          }]
-        },
-        options: commonOptions("Reservas acumuladas em ouro (toneladas)", v => v.toFixed(0) + " t")
-      }
-    };
+    // ----- Charts -----
+    Chart.defaults.font.family = "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+
+    function applyChartTheme() {
+      const styles = getComputedStyle(document.body);
+      Chart.defaults.color = styles.getPropertyValue("--text").trim() || "#eaf0fb";
+      Chart.defaults.borderColor = styles.getPropertyValue("--border").trim() || "#223049";
+    }
 
     const isMobile = () => window.matchMedia("(max-width: 600px)").matches;
 
-    function commonOptions(yTitle, yFmt) {
-      const mobile = isMobile();
-      return {
+    function commonOptions(yTitle, yFmt, extra) {
+      const m = isMobile();
+      return Object.assign({
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: "index", intersect: false },
         plugins: {
-          legend: {
-            display: true,
-            position: "top",
-            labels: { boxWidth: 14, font: { size: mobile ? 11 : 13 } }
-          },
+          legend: { display: false },
           tooltip: {
-            backgroundColor: "#0b1220",
+            backgroundColor: "rgba(11,18,32,0.95)",
             borderColor: "#223049",
             borderWidth: 1,
-            padding: mobile ? 8 : 10,
-            titleFont: { size: mobile ? 12 : 13 },
-            bodyFont: { size: mobile ? 11 : 12 },
-            boxPadding: 4,
-            callbacks: {
-              label: (ctx) => {
-                const i = ctx.dataIndex;
-                const lines = [];
-                lines.push(` ${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}`);
-                lines.push(` Preço ouro: US$ ${data[i][2]}/oz`);
-                lines.push(` Compra líquida: ${data[i][1].toFixed(1)} t`);
-                lines.push(` Estoque: ${data[i][3].toFixed(1)} t`);
-                return lines;
-              }
-            }
+            padding: m ? 8 : 10,
+            titleFont: { size: m ? 12 : 13 },
+            bodyFont: { size: m ? 11 : 12 },
+            boxPadding: 4
           }
         },
         scales: {
           x: {
-            grid: { color: "rgba(255,255,255,0.04)" },
-            ticks: {
-              autoSkip: true,
-              maxRotation: mobile ? 0 : 45,
-              minRotation: 0,
-              maxTicksLimit: mobile ? 8 : 15,
-              font: { size: mobile ? 10 : 12 }
-            }
+            grid: { color: "rgba(127,127,127,0.10)" },
+            ticks: { autoSkip: true, maxRotation: 0, maxTicksLimit: m ? 7 : 12, font: { size: m ? 10 : 11 } }
           },
           y: {
-            title: {
-              display: !mobile,
-              text: yTitle,
-              color: "#8ea0c0"
-            },
-            grid: { color: "rgba(255,255,255,0.06)" },
-            ticks: {
-              callback: yFmt,
-              font: { size: mobile ? 10 : 12 },
-              maxTicksLimit: mobile ? 6 : 10
-            }
+            title: { display: !m, text: yTitle },
+            grid: { color: "rgba(127,127,127,0.10)" },
+            ticks: { callback: yFmt, font: { size: m ? 10 : 11 }, maxTicksLimit: m ? 5 : 8 }
           }
         }
-      };
+      }, extra || {});
     }
 
-    let currentView = "annual";
-    let chart = new Chart(ctx, views[currentView]);
-
-    function rebuildViews() {
-      // Recompute options (ticks/fonts) with current viewport size.
-      views.annual.options = commonOptions("Gasto estimado em ouro (US$)", v => fmtUSD(v));
-      views.tonnes.options = commonOptions("Toneladas de ouro compradas (líquido)", v => v.toFixed(1) + " t");
-      views.stock.options  = commonOptions("Reservas acumuladas em ouro (toneladas)", v => v.toFixed(0) + " t");
+    function colorVar(name) {
+      return getComputedStyle(document.body).getPropertyValue(name).trim();
     }
 
-    document.querySelectorAll(".controls button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".controls button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        currentView = btn.dataset.view;
-        rebuildViews();
-        chart.destroy();
-        chart = new Chart(ctx, views[currentView]);
+    let charts = {};
+
+    function destroyCharts() {
+      Object.values(charts).forEach(c => c.destroy());
+      charts = {};
+    }
+
+    function buildCharts(rows) {
+      destroyCharts();
+      applyChartTheme();
+      const labels = rows.map(r => r.year);
+      const gold = colorVar("--accent-gold");
+      const green = colorVar("--accent-green");
+      const red = colorVar("--accent-red");
+      const blue = colorVar("--accent-blue");
+
+      charts.spend = new Chart(document.getElementById("cSpend"), {
+        type: "bar",
+        data: { labels, datasets: [{
+          label: "Gasto (US$)",
+          data: rows.map(r => r.spend),
+          backgroundColor: gold + "d0",
+          borderColor: gold,
+          borderWidth: 1
+        }]},
+        options: commonOptions("US$", v => fmtUSD(v))
       });
+
+      charts.tonnes = new Chart(document.getElementById("cTonnes"), {
+        type: "bar",
+        data: { labels, datasets: [{
+          label: "Toneladas (líquido)",
+          data: rows.map(r => r.tonnes),
+          backgroundColor: rows.map(r => (r.tonnes < 0 ? red + "c0" : green + "c0")),
+          borderColor: rows.map(r => (r.tonnes < 0 ? red : green)),
+          borderWidth: 1
+        }]},
+        options: commonOptions("toneladas", v => v.toFixed(1) + " t")
+      });
+
+      charts.stock = new Chart(document.getElementById("cStock"), {
+        type: "line",
+        data: { labels, datasets: [{
+          label: "Estoque (t)",
+          data: rows.map(r => r.stock),
+          fill: true,
+          backgroundColor: gold + "22",
+          borderColor: gold,
+          borderWidth: 2,
+          tension: 0.2,
+          pointRadius: 2.5
+        }]},
+        options: commonOptions("toneladas", v => v.toFixed(0) + " t")
+      });
+
+      charts.mtm = new Chart(document.getElementById("cMtm"), {
+        type: "line",
+        data: { labels, datasets: [{
+          label: "Valor mtm (US$)",
+          data: rows.map(r => r.mtm),
+          fill: true,
+          backgroundColor: green + "20",
+          borderColor: green,
+          borderWidth: 2,
+          tension: 0.2,
+          pointRadius: 2.5
+        }]},
+        options: commonOptions("US$", v => fmtUSDbi(v))
+      });
+
+      charts.price = new Chart(document.getElementById("cPrice"), {
+        type: "line",
+        data: { labels, datasets: [{
+          label: "Preço (US$/oz)",
+          data: rows.map(r => r.price),
+          fill: false,
+          borderColor: blue,
+          backgroundColor: blue,
+          borderWidth: 2,
+          tension: 0.25,
+          pointRadius: 2.5
+        }]},
+        options: commonOptions("US$/oz", v => "US$ " + v)
+      });
+
+      charts.mix = new Chart(document.getElementById("cMix"), {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              type: "bar",
+              label: "Compras (t)",
+              data: rows.map(r => Math.max(0, r.tonnes)),
+              backgroundColor: gold + "d0",
+              borderColor: gold,
+              borderWidth: 1,
+              yAxisID: "y"
+            },
+            {
+              type: "line",
+              label: "Preço (US$/oz)",
+              data: rows.map(r => r.price),
+              borderColor: blue,
+              backgroundColor: blue,
+              borderWidth: 2,
+              tension: 0.25,
+              pointRadius: 2,
+              yAxisID: "y1"
+            }
+          ]
+        },
+        options: (function () {
+          const m = isMobile();
+          return {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
+            plugins: {
+              legend: { display: true, position: "top", labels: { boxWidth: 14, font: { size: m ? 10 : 12 } } },
+              tooltip: {
+                backgroundColor: "rgba(11,18,32,0.95)",
+                borderColor: "#223049",
+                borderWidth: 1,
+                padding: m ? 8 : 10,
+                titleFont: { size: m ? 12 : 13 },
+                bodyFont: { size: m ? 11 : 12 }
+              }
+            },
+            scales: {
+              x: { grid: { color: "rgba(127,127,127,0.10)" }, ticks: { maxTicksLimit: m ? 7 : 12, font: { size: m ? 10 : 11 } } },
+              y:  { position: "left",  title: { display: !m, text: "toneladas" }, ticks: { callback: v => v.toFixed(0) + " t", maxTicksLimit: 5, font: { size: m ? 10 : 11 } } },
+              y1: { position: "right", title: { display: !m, text: "US$/oz" }, ticks: { callback: v => "US$ " + v, maxTicksLimit: 5, font: { size: m ? 10 : 11 } }, grid: { drawOnChartArea: false } }
+            }
+          };
+        })()
+      });
+    }
+
+    // ----- Filter -----
+    function getFiltered() {
+      const a = parseInt(document.getElementById("minYear").value, 10);
+      const b = parseInt(document.getElementById("maxYear").value, 10);
+      const lo = Math.min(a, b), hi = Math.max(a, b);
+      document.getElementById("rangeLabel").textContent = lo + " — " + hi;
+      return ALL.filter(r => r.year >= lo && r.year <= hi);
+    }
+    function refresh() {
+      const rows = getFiltered();
+      buildStats(rows);
+      buildTable(rows);
+      buildCharts(rows);
+    }
+
+    document.getElementById("minYear").addEventListener("input", refresh);
+    document.getElementById("maxYear").addEventListener("input", refresh);
+    document.getElementById("resetRange").addEventListener("click", () => {
+      document.getElementById("minYear").value = 1995;
+      document.getElementById("maxYear").value = 2024;
+      refresh();
     });
 
+    // ----- Theme toggle -----
+    function applyTheme(t) {
+      document.body.setAttribute("data-theme", t);
+      document.getElementById("theme-color-meta").setAttribute("content", t === "light" ? "#ffffff" : "#0f1724");
+      try { localStorage.setItem("ouro-theme", t); } catch (_) {}
+      // Rebuild charts so axis/text colors track theme.
+      const rows = getFiltered();
+      buildCharts(rows);
+    }
+    (function initTheme() {
+      let t = "dark";
+      try { t = localStorage.getItem("ouro-theme") || "dark"; } catch (_) {}
+      document.body.setAttribute("data-theme", t);
+    })();
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      const cur = document.body.getAttribute("data-theme") || "dark";
+      applyTheme(cur === "dark" ? "light" : "dark");
+    });
+
+    // ----- CSV export -----
+    document.getElementById("exportCsv").addEventListener("click", () => {
+      const rows = getFiltered();
+      const header = ["Ano", "Compra_t", "Preco_USD_oz", "Gasto_USD", "Estoque_t", "Valor_mtm_USD"];
+      const lines = [header.join(",")];
+      rows.forEach(r => {
+        lines.push([r.year, r.tonnes.toFixed(1), r.price, r.spend.toFixed(0), r.stock.toFixed(1), r.mtm.toFixed(0)].join(","));
+      });
+      const csv = lines.join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "reservas-ouro-brasil.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // ----- Resize re-render (so chart fonts/ticks adapt) -----
     let resizeTimer;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        rebuildViews();
-        chart.destroy();
-        chart = new Chart(ctx, views[currentView]);
-      }, 180);
+      resizeTimer = setTimeout(refresh, 180);
     });
+
+    // ----- First render -----
+    refresh();
   </script>
 </body>
 </html>
